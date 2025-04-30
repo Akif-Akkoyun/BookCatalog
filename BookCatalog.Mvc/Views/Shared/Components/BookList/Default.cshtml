@@ -1,0 +1,72 @@
+﻿@model IEnumerable<BookViewModel>
+
+@{
+    ViewData["Title"] = "Book List";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="text-center">Book List</h2>
+            <a id="addbutton" class="btn btn-primary" asp-controller="Book" asp-action="CreateBook">Add</a>
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>
+                            ID
+                        </th>
+                        <th>
+                            Title
+                        </th>
+                        <th>
+                            Author
+                        </th>
+                        <th>
+                            Genre
+                        </th>
+                        <th>
+                            PageCount
+                        </th>
+                        <th>
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @item.Id
+                            </td>
+                            <td>
+                                @item.Title
+                            </td>
+                            <td>
+                                @item.Author
+                            </td>
+                            <td>
+                                @item.Genre
+                            </td>
+                            <td>
+                                @item.PageCount
+                            </td>
+                            <td>
+                                <a class="btn btn-info" asp-controller="Book" asp-action="GetBookByIdDetail" asp-route-id="@item.Id">Detail</a>
+                                <a class="btn btn-warning" asp-controller="Book" asp-action="EditBook" asp-route-id="@item.Id">Edit</a>
+                                <a class="btn btn-danger" asp-controller="Book" asp-action="DeleteBook" asp-route-id="@item.Id">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<style>
+    #addbutton {
+        position: relative;
+        bottom: 10px;
+        left: 990px;
+    }
+</style>

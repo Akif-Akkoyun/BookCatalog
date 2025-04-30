@@ -1,4 +1,5 @@
-﻿using BookCatalog.Data.Entities;
+﻿using BookCatalog.Api.Dtos;
+using BookCatalog.Data.Entities;
 using BookCatalog.Data.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +13,17 @@ namespace BookCatalog.Api.Controllers
         public async Task<IActionResult> GetAllBooks()
         {
             var books = await repo.GetAllAsync<Book>();
-            return Ok(books);
+            if (books is null || !books.Any())
+                return NotFound("Hiç kitap bulunamadı.");
+            var bookListDto = books.Select(b => new BookDto
+            {
+                Id = b.Id,
+                Title = b.Title,
+                Author = b.Author,
+                Genre = b.Genre,
+                PageCount = b.PageCount
+            }).ToList();
+            return Ok(bookListDto);
         }
         [HttpGet("/get-by/{id}")]
         public async Task<IActionResult> GetBookById(int id)
@@ -20,25 +31,52 @@ namespace BookCatalog.Api.Controllers
             var book = await repo.GetByIdAsync<Book>(id);
             if (book is null)
                 return NotFound();
-            return Ok(book);
+            var bookDto = new BookDto
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Author = book.Author,
+                Genre = book.Genre,
+                PageCount = book.PageCount
+            };
+            return Ok(bookDto);
         }
         [HttpPost("/add-book")]
-        public async Task<IActionResult> AddBook([FromBody] Book book)
+        public async Task<IActionResult> AddBook([FromBody] BookDto dto)
         {
-            await repo.AddAsync(book);
-            return CreatedAtAction(nameof(GetBookById), new { id = book.Id }, book);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var bookDto = new Book
+            {
+                Title = dto.Title,
+                Author = dto.Author,
+                Genre = dto.Genre,
+                PageCount = dto.PageCount
+            };
+            await repo.AddAsync(bookDto);
+            return CreatedAtAction(nameof(GetBookById), new { id = bookDto.Id }, bookDto);
         }
         [HttpPut("/update-book/{id}")]
-        public async Task<IActionResult> UpdateBook(int id, [FromBody] Book book)
+        public async Task<IActionResult> UpdateBook(int id, [FromBody] BookDto dto)
         {
-            if (id != book.Id)
-                return BadRequest("Güncelleme Yaparken Sorun Oluştu...");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var book = await repo.GetByIdAsync<Book>(id);
+            if (book is null)
+                return NotFound("Belirtilen Id'de kitap bulunamadı.");
+            book.Title = dto.Title;
+            book.Author = dto.Author;
+            book.Genre = dto.Genre;
+            book.PageCount = dto.PageCount;
             await repo.UpdateAsync(book);
-            return Ok("Güncelleme İşlemi Başarılı...");
+            return Ok("Güncelleme İşlemi Başarılı");
         }
-        [HttpDelete("/delete/{id}")]
+        [HttpDelete("/delete-book/{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {
+            var book = await repo.GetByIdAsync<Book>(id);
+            if (book is null)
+                return NotFound("Belirtilen Id'de kitap bulunamadı.");
             await repo.DeleteAsync<Book>(id);
             return Ok("Silme İşlemi Başarılı");
         }
