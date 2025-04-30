@@ -15,6 +15,7 @@ namespace BookCatalog.Data
         {
             services.AddDbContext<DbContext,AppDbContext>(options =>
                 options.UseSqlite(connectionString));
+            services.AddScoped<IDataRepository, DataRepository>();
         }
     }
 }
