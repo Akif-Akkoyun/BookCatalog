@@ -1,0 +1,18 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <partial name="Partials/PageStyle"/>
+</head>
+<body>
+    <partial name="Partials/PageHeader" />
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <partial name="Partials/PageFooter" />
+    <partial name="Partials/PageScripts" />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
